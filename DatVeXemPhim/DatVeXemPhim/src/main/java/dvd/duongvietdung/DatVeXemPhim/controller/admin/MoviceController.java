@@ -35,6 +35,7 @@ public class MoviceController {
         model.addAttribute("DanhSach",moviceService.findAll());
         model.addAttribute("IdNhanVien","ABC");
         model.addAttribute("DanhSachCategory",categoryMoviceService.findAll());
+        model.addAttribute("DanhSachCast",castService.findAll());
         return "Admin/Movice/index";
     }
 
@@ -47,6 +48,7 @@ public class MoviceController {
                           @RequestParam(name = "publishing", required = false, defaultValue = "") String publishing,
                           @RequestParam(name = "duration", required = false, defaultValue = "") String duration,
                           @RequestParam(name = "categoryMovice", required = false, defaultValue = "") String categoryMovice,
+                          @RequestParam(name = "castMovice", required = false, defaultValue = "") String castMovice,
                           @RequestParam("files") MultipartFile[] files,
                           @RequestParam (name = "idCast", required = false, defaultValue = "") String idMovice){
         System.out.println("đây là thể loại: "+categoryMovice);
@@ -65,14 +67,25 @@ public class MoviceController {
         int a = Integer.parseInt(publishing);
         if(idMovice.equals("")){
             Movice movice = new Movice(title,content,trailer,fileNames.toString(),director,Integer.parseInt(publishing),duration);
+
             HashSet<CategoryMovie> categoryMovies = new HashSet<>();
             String chuoiCategory = categoryMovice;
             String abc[] = chuoiCategory.split(" ,");
             for (int i = 0; i < abc.length; i++) {
-                CategoryMovie categoryMovie =  categoryMoviceService.findByName(abc[i]);
+//                CategoryMovie categoryMovie =  categoryMoviceService.findByName(abc[i]);
                 categoryMovies.add(categoryMoviceService.findByName(abc[i]));
             }
             movice.setCategoryMovies(categoryMovies);
+
+
+            HashSet<Cast> casts = new HashSet<>();
+            String chuoiCast = castMovice;
+            String castList[] = chuoiCast.split(" ,");
+            for (int i = 0; i < castList.length; i++) {
+//                Cast cast =  castService.findByName(castList[i]);
+                casts.add(castService.findByName(castList[i]));
+            }
+            movice.setCasts(casts);
             moviceService.save(movice);
         }else {
             Long id = Long.valueOf(idMovice);
@@ -89,6 +102,12 @@ public class MoviceController {
             }
             moviceService.save(movice);
         }
+        return "redirect:/admin/staff/movice/";
+    }
+
+    @GetMapping("delete/{IdNhanVien}/{idCast}")
+    public String delete (Model model, @PathVariable ("IdNhanVien") String IdNhanVien,@PathVariable ("idCast") Long idCast){
+        moviceService.deleteById(idCast);
         return "redirect:/admin/staff/movice/";
     }
 }

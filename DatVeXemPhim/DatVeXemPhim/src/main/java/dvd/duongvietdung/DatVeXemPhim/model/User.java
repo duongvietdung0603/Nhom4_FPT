@@ -29,6 +29,7 @@ public class User implements Serializable {
     )
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
+    private String name;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -39,6 +40,10 @@ public class User implements Serializable {
     @Column(name = "password", nullable = false)
     private String password;
 
+    private int thanhvien; //0 là k phải thành viên, 1 là thành viên
+    private int sao; //1 lần đặt vé là + thêm 1 sao, đủ 100 sao thì free 1 vé
+
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
@@ -47,6 +52,29 @@ public class User implements Serializable {
     )
     private Set<Role> roles;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getThanhvien() {
+        return thanhvien;
+    }
+
+    public void setThanhvien(int thanhvien) {
+        this.thanhvien = thanhvien;
+    }
+
+    public int getSao() {
+        return sao;
+    }
+
+    public void setSao(int sao) {
+        this.sao = sao;
+    }
 
     public String getEmail() {
         return email;

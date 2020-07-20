@@ -28,4 +28,8 @@ public class CastService {
     public void deleteById(Long idCast) {
         castRepository.deleteById(idCast);
     }
+
+    public Cast findByName(String s) {
+        return castRepository.findByName(s);
+    }
 }

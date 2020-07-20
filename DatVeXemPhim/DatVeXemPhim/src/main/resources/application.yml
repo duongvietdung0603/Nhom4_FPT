@@ -8,8 +8,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
-#            ddl-auto: create-drop
+            ddl-auto: create-drop
 #            ddl-auto:  update
-      ddl-auto: none
+#      ddl-auto: none
 server.port: 8086
 
