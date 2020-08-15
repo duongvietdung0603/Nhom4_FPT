@@ -1,13 +1,15 @@
 package com.DungDV13.ApiCinemaFpt.controller.frontend;
 
-import com.DungDV13.ApiCinemaFpt.model.HoaDon;
-import com.DungDV13.ApiCinemaFpt.model.HoaDonChiTiet;
-import com.DungDV13.ApiCinemaFpt.model.LichChieu;
-import com.DungDV13.ApiCinemaFpt.model.User;
+import com.DungDV13.ApiCinemaFpt.model.*;
 import com.DungDV13.ApiCinemaFpt.service.HoaDonChiTietService;
 import com.DungDV13.ApiCinemaFpt.service.HoaDonService;
 import com.DungDV13.ApiCinemaFpt.service.LichChieuService;
 import com.DungDV13.ApiCinemaFpt.service.UserService;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -43,8 +50,9 @@ public class DatLichController {
 
     @GetMapping("/checkCustomer")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<Object> checkCustomer() {
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<Boolean> checkCustomer() {
+        Boolean check =true;
+        return new ResponseEntity<>(check,HttpStatus.OK);
     }
 
     @GetMapping("/datlich/{idUser}/{idLichChieu}/{viTriGhe}")
@@ -81,7 +89,9 @@ public class DatLichController {
                     int soLuong = catChuoi2.length;
                     double tongTien = 0;
                     tongTien = lichChieu.getPrice() * soLuong;
-                    HoaDon hoaDon = new HoaDon(ngayDat, tongTien, user);
+
+
+                    HoaDon hoaDon = new HoaDon(ngayDat,soLuong, tongTien, "abc", user);
                     hoaDonService.save(hoaDon);
 
 
@@ -89,8 +99,24 @@ public class DatLichController {
                     for(String viTriGheItem:catChuoi1){
                         HoaDonChiTiet hoaDonChiTiet = new HoaDonChiTiet(hoaDon, lichChieu, viTriGheItem);
                         hoaDonChiTietService.save(hoaDonChiTiet);
-                        tongTien = tongTien+ lichChieu.getPrice();
                     }
+                    //            tạo mã QR
+                    String maCode = "Id HoaDon: "+ hoaDon.getId() +" -- NgayDat: "+ hoaDon.getNgaDat();
+
+//                    String QR_CODE_IMAGE_PATH = "./src/main/resources/static/Image/maCode/";
+                    String QR_CODE_IMAGE_PATH = "C:\\Users\\Administrator\\Documents\\GitHub\\material-cinema\\material-cinema\\public\\img\\maQR\\";
+                    String image = "QR"+hoaDon.getId()+".png";
+                    try {
+                        generateQRCodeImage(maCode, 350, 350, QR_CODE_IMAGE_PATH + image);
+                    } catch (WriterException e) {
+                        System.out.println("Could not generate QR Code, WriterException :: " + e.getMessage());
+                    } catch (IOException e) {
+                        System.out.println("Could not generate QR Code, IOException :: " + e.getMessage());
+                    }
+                    //            end tạo mã QR
+                    hoaDon.setMaQR(image);
+                    hoaDonService.save(hoaDon);
+
 
                 }catch (Exception e){}
 
@@ -101,9 +127,10 @@ public class DatLichController {
         return new ResponseEntity<>(status,HttpStatus.OK);
     }
 
+
     @GetMapping("/danhsachdadatlich")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<List<HoaDon>> danhsachdatlich() {
+    public ResponseEntity<List<DanhSachDatLich>> danhsachdadatlich()  {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         String username;
@@ -112,14 +139,49 @@ public class DatLichController {
         } else {
             username = principal.toString();
         }
+        List<DanhSachDatLich> danhSachDatLiches = new ArrayList<>();
+        List<HoaDon> hoaDons = hoaDonService.danhsachdatlich(username);
+        hoaDons.forEach((element) -> {
+            List<HoaDonChiTiet> hoaDonChiTiets = hoaDonChiTietService.findByHoaDonId(element.getId());
 
-        return new ResponseEntity<>(hoaDonService.danhsachdatlich(username),HttpStatus.OK);
+            DanhSachDatLich ItemList = new DanhSachDatLich();
+            ItemList.setIdHoaDon(element.getId());
+            ItemList.setSoChoNgoi((int) element.getSoLuong());
+            ItemList.setTongTien(element.getTongTien());
+            ItemList.setNgayDatVe(String.valueOf(element.getNgaDat()));
+            List<String> danhSachChoNgoi = new ArrayList<>();
+            hoaDonChiTiets.forEach((item)->{
+                ItemList.setTenPhim(item.getLichChieu().getMovice().getName());
+                ItemList.setNgayChieu(String.valueOf(item.getLichChieu().getNgayChieu()));
+                ItemList.setGioChieu(item.getLichChieu().getGioChieu());
+                ItemList.setPhongChieu(item.getLichChieu().getPhongChieu().getName());
+                if (item.getLichChieu().getStatus() == 1){
+                    ItemList.setLoaiSuatChieu("chiếu sớm");
+                }else {
+                    ItemList.setLoaiSuatChieu(" ");
+                }
+
+                danhSachChoNgoi.add(item.getViTriGhe());
+
+            });
+            ItemList.setDanhSachChoNgo(danhSachChoNgoi);
+            ItemList.setMaQR(element.getMaQR());
+
+            danhSachDatLiches.add(ItemList);
+        });
+
+
+        return new ResponseEntity<>(danhSachDatLiches, HttpStatus.OK);
     }
 
-    @GetMapping("/danhsachdadatlichChiTiet")
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<List<HoaDonChiTiet>> danhsachdadatlichChiTiet() {
 
-        return new ResponseEntity<>(hoaDonChiTietService.findAll(),HttpStatus.OK);
+    //Mã QR
+    public void generateQRCodeImage(String text, int width, int height, String filePath)
+            throws WriterException, IOException {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
+
+        Path path = FileSystems.getDefault().getPath(filePath);
+        MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
     }
 }

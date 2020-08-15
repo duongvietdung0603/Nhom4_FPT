@@ -14,9 +14,9 @@ public interface LichChieuRepository extends JpaRepository<LichChieu, Long> {
     Page<LichChieu> findAll(Pageable pageable);
 
     List<LichChieu> findByNgayChieu(Date date);
-    List<LichChieu> findByMoviceId(Long id);
+    List<LichChieu> findByMoviceIdAndStatus(Long id, Integer status);
 
-    @Query("SELECT lc FROM LichChieu lc where lc.movice.id = ?1 and lc.ngayChieu = ?2 and lc.gioChieu = ?3 and lc.phongChieu.id = ?4 ")
-    LichChieu findLichChieu(long idMovice, Date date, String gioChieu, long phongChieu);
+    @Query("SELECT lc FROM LichChieu lc where lc.movice.id = ?1 and lc.ngayChieu = ?2 and lc.gioChieu = ?3 and lc.phongChieu.id = ?4 and lc.status =?5 ")
+    LichChieu findLichChieu(long idMovice, Date date, String gioChieu, long phongChieu, int status);
 
 }

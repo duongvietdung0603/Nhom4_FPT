@@ -44,4 +44,8 @@ public class HoaDonChiTietService {
     public List<HoaDonChiTiet> danhsachdadatlichChiTiet(Long id) {
         return hoaDonChiTietRepository.findByHoaDonId(id);
     }
+
+    public List<HoaDonChiTiet> findByHoaDonId(Long id) {
+        return hoaDonChiTietRepository.findByHoaDonId(id);
+    }
 }

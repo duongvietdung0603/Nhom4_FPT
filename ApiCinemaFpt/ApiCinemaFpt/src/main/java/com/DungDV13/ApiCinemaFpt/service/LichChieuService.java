@@ -37,11 +37,11 @@ public class LichChieuService {
         return lichChieuRepository.findByNgayChieu(date);
     }
 
-    public List<LichChieu> findByMoviceId(long id) {
-       return lichChieuRepository.findByMoviceId(id);
+    public List<LichChieu> findByMoviceIdAndStatus(long id, int status) {
+       return lichChieuRepository.findByMoviceIdAndStatus(id,status);
     }
 
-    public LichChieu findLichChieu(long idMovice, Date date, String gioChieu, long phongChieu) {
-        return lichChieuRepository.findLichChieu(idMovice,date,gioChieu,phongChieu);
+    public LichChieu findLichChieu(long idMovice, Date date, String gioChieu, long phongChieu, int status) {
+        return lichChieuRepository.findLichChieu(idMovice,date,gioChieu,phongChieu,status);
     }
 }

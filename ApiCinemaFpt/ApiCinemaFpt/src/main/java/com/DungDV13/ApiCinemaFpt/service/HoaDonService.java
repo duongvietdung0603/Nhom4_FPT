@@ -25,7 +25,6 @@ public class HoaDonService {
     public HoaDon findById(Long id) {
         return hoaDonRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Khong tim thay id: "+id));
     }
-
     public void deleteById(Long id) {
         hoaDonRepository.deleteById(id);
     }

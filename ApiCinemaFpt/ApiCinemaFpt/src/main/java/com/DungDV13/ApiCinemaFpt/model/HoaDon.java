@@ -33,13 +33,12 @@ public class HoaDon {
         this.user = user;
     }
 
-    public HoaDon(Date ngaDat, double soLuong, double tongTien, String maQR, User user, List<HoaDonChiTiet> hoaDonChiTiets) {
+    public HoaDon(Date ngaDat, double soLuong, double tongTien, String maQR, User user) {
         this.ngaDat = ngaDat;
         this.soLuong = soLuong;
         this.tongTien = tongTien;
         this.maQR = maQR;
         this.user = user;
-        this.hoaDonChiTiets = hoaDonChiTiets;
     }
 
     public Long getId() {
