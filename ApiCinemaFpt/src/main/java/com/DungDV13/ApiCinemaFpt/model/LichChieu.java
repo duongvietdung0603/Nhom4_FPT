@@ -14,23 +14,26 @@ public class LichChieu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ứng với data trong mysql
     @Temporal(TemporalType.DATE)
     private java.util.Date ngayChieu;
     private String gioChieu;
-
-
     private int price;
-    private int status; // suat chieu som = 1 , bình thường = 0
 
+    // suat chieu som = 1 , bình thường = 0
+    private int status;
+
+    //liên kết 1-1
     @OneToOne
     @JoinColumn(name = "movice_id", nullable = false)
     private Movice movice ;
 
+    //liên kết 1-1
     @OneToOne
     @JoinColumn(name = "phongChieu_id", nullable = false)
     private PhongChieu phongChieu;
 
-
+    //liên kết 1-n
     @OneToMany(mappedBy = "lichChieu", cascade = CascadeType.ALL)
     private List<HoaDonChiTiet> hoaDonChiTiets;
 

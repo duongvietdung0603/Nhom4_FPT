@@ -15,12 +15,11 @@ public interface HoaDonChiTietRepository extends JpaRepository<HoaDonChiTiet, Lo
     @Query("SELECT ct.viTriGhe FROM HoaDonChiTiet ct where ct.lichChieu.id = ?1")
     List<String> viTriGheDaDuocChon(long idLichChieu);
 
+
     @Query("SELECT m.name, lc.ngayChieu, lc.gioChieu, pc.name, hd.tongTien, u.username FROM HoaDonChiTiet ct, HoaDon hd, User u, LichChieu lc, PhongChieu pc, Movice m where u.username = ?1")
     List<Object> danhsachdadatlich(String idUser);
 
     List<HoaDonChiTiet> findByHoaDonId(Long id);
 
     List<HoaDonChiTiet> findByLichChieuId(Long id);
-
-
 }

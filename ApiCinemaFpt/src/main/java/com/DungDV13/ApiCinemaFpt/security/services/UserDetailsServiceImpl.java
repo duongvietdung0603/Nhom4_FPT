@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    UserRepository userRepository;
+    UserRepository userRepository; // thiếu private, property của lớp thì thường là private
 
     @Override
     @Transactional

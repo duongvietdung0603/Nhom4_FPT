@@ -10,17 +10,22 @@ public class HoaDon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Temporal(TemporalType.DATE)
     private java.util.Date ngaDat;
 
     private double soLuong;
     private double tongTien;
+
+    // tạo mã QR để check vé
     private String maQR;
 
+    //liên kết 1-1
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    //liên kết 1-n
     @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL)
     private List<HoaDonChiTiet> hoaDonChiTiets;
 

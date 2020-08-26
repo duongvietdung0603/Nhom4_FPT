@@ -43,10 +43,10 @@ public class AuthRestAPIs {
 
     @Autowired
     JwtProvider jwtProvider;
-
+// name và biến giống nhau thì có thể bỏ không cần ghi name
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(
-            @RequestParam (name = "username", required = false, defaultValue = "") String username,
+            @RequestParam (required = false, defaultValue = "") String username,
             @RequestParam (name = "password", required = false, defaultValue = "") String password
     ) {
 

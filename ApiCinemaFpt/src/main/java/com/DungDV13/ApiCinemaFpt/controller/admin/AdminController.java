@@ -1,7 +1,6 @@
 package com.DungDV13.ApiCinemaFpt.controller.admin;
 
 import com.DungDV13.ApiCinemaFpt.controller.admin.Bean.DanhSachDatVeTheoLC;
-import com.DungDV13.ApiCinemaFpt.controller.admin.Bean.DoanhThuTheoPhim;
 import com.DungDV13.ApiCinemaFpt.controller.admin.Bean.TyLeVeTheoLC;
 import com.DungDV13.ApiCinemaFpt.model.*;
 import com.DungDV13.ApiCinemaFpt.repository.HoaDonChiTietRepository;
@@ -12,44 +11,42 @@ import com.DungDV13.ApiCinemaFpt.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("api/admin1")
 public class AdminController {
+
     @Autowired
-    HoaDonService hoaDonService;
+    private HoaDonService hoaDonService;
     @Autowired
-    HoaDonChiTietService hoaDonChiTietService;
+    private HoaDonChiTietService hoaDonChiTietService;
     @Autowired
-    UserService userService;
+    private UserService userService;
     @Autowired
-    LichChieuService lichChieuService;
+    private LichChieuService lichChieuService;
     @Autowired
-    MoviceService moviceService;
+    private MoviceService moviceService;
     @Autowired
-    PhongChieuRepository rapChieuRepository;
+    private PhongChieuRepository rapChieuRepository;
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
     @Autowired
-    HoaDonChiTietRepository hoaDonChiTietRepository;
+    private HoaDonChiTietRepository hoaDonChiTietRepository;
     @Autowired
-    HoaDonRepository hoaDonRepository ;
+    private HoaDonRepository hoaDonRepository ;
 
 
     @GetMapping("/tyLeVeTheoNgay/{ngay}")
@@ -57,11 +54,11 @@ public class AdminController {
     public ResponseEntity<List<TyLeVeTheoLC>> tyLeVeTheoNgay(@PathVariable String ngay) throws ParseException {
         Date date = new SimpleDateFormat("yyyy-MM-dd").parse(ngay);
 
-        List<TyLeVeTheoLC> ListTyLeVeTheoLCS = new ArrayList<>();
+        List<TyLeVeTheoLC> ListTyLeVeTheoLCS = new ArrayList<>(); // bắtđầu là chữ thường => listTyLe...
 
         List<LichChieu> lichChieus = lichChieuService.findByNgayChieu(date);
 
-        for (int i = 0; i < lichChieus.size(); i++) {
+        /*for (int i = 0; i < lichChieus.size(); i++) {
             TyLeVeTheoLC tyLeVeTheoLC = new TyLeVeTheoLC();
             Long soLuong = hoaDonService.countByHoaDonChiTietsLichChieuId(lichChieus.get(i).getId());
             tyLeVeTheoLC.setIdLC(String.valueOf(lichChieus.get(i).getId()));
@@ -71,7 +68,11 @@ public class AdminController {
             tyLeVeTheoLC.setTyLe(String.valueOf(soLuong));
 
             ListTyLeVeTheoLCS.add(tyLeVeTheoLC);
-        }
+        }*/
+
+        ListTyLeVeTheoLCS = lichChieus.stream()
+                .map(this::toTyLeVeTheoLC) // chỗ này có thể viết 1 lớp mapper rồi truyền method vào
+                .collect(Collectors.toList());
 
         return new ResponseEntity<>(ListTyLeVeTheoLCS,HttpStatus.OK);
     }
@@ -82,9 +83,14 @@ public class AdminController {
         List<HoaDonChiTiet> hoaDonChiTiets =  hoaDonChiTietService.findByLichChieuId(id);
         List<String> list = new ArrayList<>();
 
-        for (int i = 0; i < hoaDonChiTiets.size(); i++) {
+        /*for (int i = 0; i < hoaDonChiTiets.size(); i++) {
             list.add(String.valueOf(hoaDonChiTiets.get(i).getHoaDon().getId()));
-        }
+        }*/
+        list = hoaDonChiTiets.stream()
+                .map(HoaDonChiTiet::getHoaDon)
+                .map(HoaDon::getId)
+                .map(String::valueOf)
+                .collect(Collectors.toList());
         List<String> newUser =list
                 .stream()
                 .distinct()
@@ -114,13 +120,25 @@ public class AdminController {
         return new ResponseEntity<>(danhSachDatVeTheoLCList,HttpStatus.OK);
     }
 
-    @GetMapping("/test/{name}")
-    public ResponseEntity<List<String>> doanhthu(@PathVariable String name){
-//        int doanhThuTheoPhims = moviceService.doanhThuTheoPhim(name);
-//
-//            System.out.println(doanhThuTheoPhims);
-//            System.out.println("==========================");
-        return new ResponseEntity<>(moviceService.doanhThuTheoPhim(name),HttpStatus.OK);
+    private TyLeVeTheoLC toTyLeVeTheoLC(LichChieu lichChieu) {
+        TyLeVeTheoLC tyLeVeTheoLC = new TyLeVeTheoLC();
+        Long soLuong = hoaDonService.countByHoaDonChiTietsLichChieuId(lichChieu.getId());
+        tyLeVeTheoLC.setIdLC(String.valueOf(lichChieu.getId()));
+        tyLeVeTheoLC.setName(lichChieu.getMovice().getName());
+        tyLeVeTheoLC.setGioChieu(lichChieu.getGioChieu());
+        tyLeVeTheoLC.setRap(lichChieu.getPhongChieu().getName());
+        tyLeVeTheoLC.setTyLe(String.valueOf(soLuong));
+
+        return tyLeVeTheoLC;
     }
-    
+
+//    @GetMapping("/test/{name}")
+//    public ResponseEntity<List<String>> doanhthu(@PathVariable String name){
+////        int doanhThuTheoPhims = moviceService.doanhThuTheoPhim(name);
+////
+////            System.out.println(doanhThuTheoPhims);
+////            System.out.println("==========================");
+//        return new ResponseEntity<>(moviceService.doanhThuTheoPhim(name),HttpStatus.OK);
+//    }
+
 }

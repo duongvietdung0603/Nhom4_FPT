@@ -9,10 +9,12 @@ public class HoaDonChiTiet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //liên kết 1-1
     @OneToOne
     @JoinColumn(name = "hoaDon_id", nullable = false)
     private HoaDon hoaDon;
 
+    //liên kết 1-1
     @OneToOne
     @JoinColumn(name = "lichChieu_id", nullable = false)
     private LichChieu lichChieu;

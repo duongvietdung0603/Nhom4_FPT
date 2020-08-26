@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,13 +39,13 @@ import java.util.Optional;
 @RequestMapping("api/customer")
 public class DatLichController {
     @Autowired
-    HoaDonService hoaDonService;
+    private HoaDonService hoaDonService;
     @Autowired
-    HoaDonChiTietService hoaDonChiTietService;
+    private HoaDonChiTietService hoaDonChiTietService;
     @Autowired
-    UserService userService;
+    private UserService userService;
     @Autowired
-    LichChieuService lichChieuService;
+    private LichChieuService lichChieuService;
 
 
 
@@ -68,7 +69,7 @@ public class DatLichController {
             LichChieu lichChieu = lichChieuService.findById(idLichChieu);
 
             boolean kiemTra = true;
-            Integer status = 1;
+            int status = 1;
 
             try {
                 String[] catChuoi = viTriGhe.split("-");
@@ -84,7 +85,7 @@ public class DatLichController {
             }
 
             System.out.println("kiểm tra: "+ kiemTra);
-            if (kiemTra == true){
+            if (kiemTra){
                 try {
                     String[] catChuoi2 = viTriGhe.split("-");
                     int soLuong = catChuoi2.length;
@@ -131,15 +132,10 @@ public class DatLichController {
 
     @GetMapping("/danhsachdadatlich")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<List<DanhSachDatLich>> danhsachdadatlich()  {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public ResponseEntity<List<DanhSachDatLich>> danhsachdadatlich(Principal principal)  {
 
-        String username;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
+        String username = principal.getName();
+
         List<DanhSachDatLich> danhSachDatLiches = new ArrayList<>();
         List<HoaDon> hoaDons = hoaDonService.danhsachdatlich(username);
         hoaDons.forEach((element) -> {

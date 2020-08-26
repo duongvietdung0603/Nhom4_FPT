@@ -14,6 +14,7 @@ public class Movice {
     private String name;
     private String title;
 
+    // kiểu text ứng với mysql
     @Column(name = "content", columnDefinition = "TEXT NOT NULL")
     private String content;
 
@@ -24,9 +25,12 @@ public class Movice {
     private String thoiLuong;
     private String nuocSX;
     private int namSX;
-    private int status; //0 là chưa chiếu, 1 là đang chiếu
 
-        @OneToMany(mappedBy = "movice", cascade = CascadeType.ALL)
+    //0 là chưa chiếu, 1 là đang chiếu
+    private int status;
+
+    //liên kết 1-n
+    @OneToMany(mappedBy = "movice", cascade = CascadeType.ALL)
     private List<LichChieu> lichChieus;
 
     public Movice() {

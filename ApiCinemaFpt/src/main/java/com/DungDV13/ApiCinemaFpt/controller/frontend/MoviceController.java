@@ -8,17 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-//import javax.validation.Valid;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
+
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Random;
+
 
 
 @Controller
@@ -26,7 +23,7 @@ import java.util.Random;
 @RequestMapping("api/movice/")
 public class MoviceController {
     @Autowired
-    MoviceService moviceService;
+    private  MoviceService moviceService;
 
 
 
@@ -42,12 +39,7 @@ public class MoviceController {
 
     @GetMapping("/getRandomChoBanner")
     public ResponseEntity<Object> getRandomChoBanner() {
-        List<Movice> listMovice = moviceService.findDuKien(0);
-
-        Random rd = new Random();
-        int x = rd.nextInt(listMovice.size());
-        System.out.println("ramdom: "+ listMovice.get(x).getId());
-        return new ResponseEntity<>(moviceService.findById(listMovice.get(x).getId()) , HttpStatus.OK);
+        return new ResponseEntity<>(moviceService.getRandomChoBanner(0) , HttpStatus.OK);
     }
 
     @GetMapping("/findSuatChieuSom")

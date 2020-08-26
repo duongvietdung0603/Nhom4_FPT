@@ -41,17 +41,16 @@ import java.util.stream.Collectors;
 public class LichChieuController {
 
 
-
     @Autowired
-    LichChieuService lichChieuService;
+    private LichChieuService lichChieuService;
     @Autowired
-    PhongChieuRepository rapChieuRepository;
+    private PhongChieuRepository rapChieuRepository;
     @Autowired
-    HoaDonChiTietService hoaDonChiTietService;
+    private HoaDonChiTietService hoaDonChiTietService;
     @Autowired
-    HoaDonService hoaDonService;
+    private HoaDonService hoaDonService;
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
 
 
@@ -71,50 +70,17 @@ public class LichChieuController {
 
     @GetMapping("/findByMoviceId/{idMovice}")
     public ResponseEntity<List<String>> findByMoviceId(@PathVariable long idMovice) {
-        List<LichChieu> lichChieus = lichChieuService.findByMoviceId(idMovice);
-        List<String> ngayChieu = new ArrayList<>();
-
-        lichChieus.forEach((element) -> {
-            if(element.getStatus()==0){
-                String ngay = String.valueOf(element.getNgayChieu());
-                ngayChieu.add(ngay);
-            }else {
-                String ngay = element.getNgayChieu() + " - suất chiếu sớm";
-                ngayChieu.add(ngay);
-            }
-        });
-
-        List<String> newNgayChieu =ngayChieu
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
-
-
-        return new ResponseEntity<>(newNgayChieu, HttpStatus.OK);
+        return new ResponseEntity<>(lichChieuService.findByMoviceId(idMovice), HttpStatus.OK);
     }
 
+    //danh sách lịch chiếu theo phim, ngày chiếu và suất chiếu
     @GetMapping("/findGioChieu/{idMovice}/{idNgay}/{suatChieu}")
     public ResponseEntity<List<String>> findByMoviceIdAndNgayChieuAndStatus(@PathVariable long idMovice,
                                                                             @PathVariable String idNgay,
                                                                             @PathVariable int suatChieu
     ) throws ParseException {
         Date date=new SimpleDateFormat("yyyy-MM-dd").parse(idNgay);
-
-
-        List<LichChieu> lichChieus = lichChieuService.findByMoviceIdAndNgayChieuAndStatus(idMovice, date,suatChieu);
-        List<String> gioChieu = new ArrayList<>();
-
-        lichChieus.forEach((element) -> {
-            gioChieu.add(element.getGioChieu());
-        });
-
-        List<String> newGioChieu =gioChieu
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
-
-
-        return new ResponseEntity<>(newGioChieu, HttpStatus.OK);
+        return new ResponseEntity<>(lichChieuService.findByMoviceIdAndNgayChieuAndStatus(idMovice, date, suatChieu), HttpStatus.OK);
     }
 
 
@@ -141,71 +107,39 @@ public class LichChieuController {
         return ResponseEntity.ok().body("OK! delete successfully!");
     }
 
+    //danh sách lịch chiếu theo ngày
     @GetMapping("/getByNgayChieu/{ngay}")
     public ResponseEntity<List<LichChieu>> delete(@PathVariable String ngay) throws ParseException {
         Date date=new SimpleDateFormat("yyyy-MM-dd").parse(ngay);
         return new ResponseEntity<List<LichChieu>>(lichChieuService.findByNgayChieu(date), HttpStatus.OK);
     }
 
-//    @GetMapping("/getByMovice/{id}")
-//    public ResponseEntity<List<LichChieu>> getByMovice(@PathVariable long id) {
-//        return new ResponseEntity<List<LichChieu>>(lichChieuService.findByMoviceId(id), HttpStatus.OK);
-//    }
 
+    //tìm lịch chiếu theo phim, ngày, giờ chiếu và trạng thái
     @GetMapping("/findLichChieu/{idMovice}/{ngayChieu}/{gioChieu}/{phongChieu}/{status}")
     public ResponseEntity<LichChieu> findLichChieu(@PathVariable long idMovice,
-                                                         @PathVariable String ngayChieu,
-                                                         @PathVariable String gioChieu,
-                                                        @PathVariable long phongChieu,
-                                                        @PathVariable int status
-                                                         ) throws ParseException {
+                                                   @PathVariable String ngayChieu,
+                                                   @PathVariable String gioChieu,
+                                                   @PathVariable long phongChieu,
+                                                   @PathVariable int status
+    ) throws ParseException {
         Date date=new SimpleDateFormat("yyyy-MM-dd").parse(ngayChieu);
         return new ResponseEntity<>(lichChieuService.findLichChieu(idMovice, date, gioChieu, phongChieu,status), HttpStatus.OK);
     }
 
+    //list vị trí ghế mà đã có người chọn, kể cả bạn
     @GetMapping("/viTriGheDaDuocChon/{idLich}")
     public ResponseEntity<List<String>> viTriGheDaDuocChon(@PathVariable long idLich)  {
         return new ResponseEntity<>(hoaDonChiTietService.viTriGheDaDuocChon(idLich), HttpStatus.OK);
     }
 
 
+    //tìm lịch chiếu theo phim và trạng thái
     @GetMapping("/danhSachLichChieuTheoNgay/{status}/{idMovice}")
-    public ResponseEntity<Set<DanhSachLichChieuTheoNgay>> test(@PathVariable long idMovice, @PathVariable int status )  {
-
-        List<DanhSachLichChieuTheoNgay> danhSachLichChieuTheoNgays = new ArrayList<>();
-
-        List<LichChieu> lichChieu = lichChieuService.findByMoviceIdAndStatus(idMovice,status);
-
-        for (int i = 0; i < lichChieu.size(); i++) {
-
-            DanhSachLichChieuTheoNgay itemDanhSach = new DanhSachLichChieuTheoNgay();
-            List<String> danhSachGio = new ArrayList<>();
-
-            itemDanhSach.setNgayChieu(String.valueOf(lichChieu.get(i).getNgayChieu()));
-            danhSachGio.add(lichChieu.get(i).getGioChieu());
-            for (int j = i+1; j < lichChieu.size(); j++) {
-                if(String.valueOf(lichChieu.get(i).getNgayChieu()).equals(String.valueOf(lichChieu.get(j).getNgayChieu()))){
-                    danhSachGio.add(lichChieu.get(j).getGioChieu());
-                }
-            }
-            //loại bỏ thời gian trùng nhau
-            List<String> newDanhSachGio =danhSachGio
-                    .stream()
-                    .distinct()
-                    .collect(Collectors.toList());
-
-            itemDanhSach.setGioChieu(newDanhSachGio);
-            danhSachLichChieuTheoNgays.add(itemDanhSach);
-        }
-
-        //loại bỏ đối tượng có ngày giống nhau trong list
-        Set<DanhSachLichChieuTheoNgay> result2 = danhSachLichChieuTheoNgays.stream()
-                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(DanhSachLichChieuTheoNgay::getNgayChieu))));
-
-        return new ResponseEntity<>(result2,HttpStatus.OK);
+    public ResponseEntity<Set<DanhSachLichChieuTheoNgay>> danhSachLichChieuTheoNgay(@PathVariable long idMovice,
+                                                                                    @PathVariable int status )  {
+        return new ResponseEntity<>(lichChieuService.danhSachLichChieuTheoNgay(idMovice,status),HttpStatus.OK);
     }
-
-
 
 }
 

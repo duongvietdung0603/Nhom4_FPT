@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class MoviceService {
@@ -49,5 +50,13 @@ public class MoviceService {
 
     public List<String> doanhThuTheoPhim(String name) {
         return moviceRepository.doanhThuTheoPhim(name);
+    }
+
+    public Object getRandomChoBanner(int a){
+        List<Movice> listMovice = moviceRepository.findByStatus(a);
+
+        Random rd = new Random();
+        int x = rd.nextInt(listMovice.size());
+        return moviceRepository.findById(listMovice.get(x).getId());
     }
 }

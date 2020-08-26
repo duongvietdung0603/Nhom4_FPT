@@ -30,7 +30,8 @@ public class TestRestAPIs {
 	}
 
 	@GetMapping("/api/test/pm")
-	@PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
+//	@PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')") // cái trên tương đương <==
 	public String projectManagementAccess() {
 		return ">>> Board Management Project";
 	}
