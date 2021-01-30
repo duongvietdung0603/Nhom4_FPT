@@ -21,9 +21,9 @@ public class InitDataController {
     @Autowired
     MoviceService moviceService;
 
-//    @PostConstruct
-//        public void initData(){
-//
+    @PostConstruct
+        public void initData(){
+
 //            for(int i=1; i<5; i++){
 //                PhongChieu phongChieu = new PhongChieu("rap "+ i) ;
 //                rapChieuRepository.save(phongChieu);
@@ -324,5 +324,5 @@ public class InitDataController {
 //                0
 //        );
 //        moviceService.save(movice19);
-//    }
+    }
 }
